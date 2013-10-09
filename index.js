@@ -32,7 +32,8 @@ youtubeSearch.search = function(q, opts, cb) {
           cb(null, result.feed.entry.map(function(entry) {
             return {
               title: entry.title[0]._,
-              url: entry.link[0].$.href
+              url: entry.link[0].$.href,
+              category: entry.category[1].$.term
             };
           }));
         } else {
