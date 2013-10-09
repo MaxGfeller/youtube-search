@@ -4,7 +4,7 @@ youtube-search is an npm module to easily search videos on youtube.
 
 ## Usage
 
-`` javascript
+```javascript 
 var youtubeSearch = require('youtube-search');
 
 youtubeSearch.search('deadmau5', function(err, results) {
