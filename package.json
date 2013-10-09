@@ -1,0 +1,23 @@
+{
+  "name": "youtube-search",
+  "version": "0.0.1",
+  "description": "Search for youtube videos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MaxGfeller/youtube-search"
+  },
+  "keywords": [
+    "youtube",
+    "search",
+    "api"
+  ],
+  "author": "Max Gfeller <max.gfeller@gmail.com>",
+  "license": "BSD",
+  "dependencies": {
+    "xml2js": "~0.2.8"
+  }
+}
