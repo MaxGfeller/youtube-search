@@ -33,7 +33,8 @@ youtubeSearch.search = function(q, opts, cb) {
             return {
               title: entry.title[0]._,
               url: entry.link[0].$.href,
-              category: entry.category[1].$.term
+              category: entry.category[1].$.term,
+              description: entry.content[0]._
             };
           }));
         } else {
