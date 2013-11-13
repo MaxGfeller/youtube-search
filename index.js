@@ -40,7 +40,7 @@ youtubeSearch.search = function(q, opts, cb) {
               thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
                 return size.$;
               }),
-              statistics: entry["yt:statistics"][0].$,
+              statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
               published: entry.published[0],
               updated: entry.updated[0]
             };
