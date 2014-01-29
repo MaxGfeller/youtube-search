@@ -18,7 +18,15 @@ youtubeSearch.search = function(q, opts, cb) {
     }
   }
 
-  http.get(baseUrl + sanitizedQuery + optsString, function(res) {
+  http.get({
+    host: 'www.corsproxy.com',
+    path: '/gdata.youtube.com/feeds/api/videos?q=' + sanitizedQuery + optsString,
+    scheme: 'http',
+    headers: {
+      'GData-Version': '2',
+      'Access-Control-Allow-Credentials': 'false'
+    }
+  }, function(res) {
     var responseString = '';
     res.on('data', function(data) {
       responseString += data;
@@ -51,7 +59,6 @@ youtubeSearch.search = function(q, opts, cb) {
       });
     });
   }).on('error', function(e) {
-    console.log('error occured');
     console.log(e);
   });
 }
