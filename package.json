@@ -19,5 +19,8 @@
   "license": "BSD",
   "dependencies": {
     "xml2js": "~0.2.8"
+  },
+  "browser": {
+    "http": "git://github.com/derekr/http-browserify.git#withcred"
   }
 }
