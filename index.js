@@ -1,10 +1,10 @@
 var parseString = require('xml2js').parseString;
-var http = require('http');
+var https = require('https');
 
 var youtubeSearch = {}
 
 youtubeSearch.search = function(q, opts, cb) {
-  var baseUrl = 'https://gdata.youtube.com/feeds/api/videos?q=';
+  var baseUrl = 'gdata.youtube.com';
   var sanitizedQuery = q.replace(/ /g, '+');
   var optsString = '';
 
@@ -18,13 +18,11 @@ youtubeSearch.search = function(q, opts, cb) {
     }
   }
 
-  http.get({
-    host: 'www.corsproxy.com',
-    path: '/gdata.youtube.com/feeds/api/videos?q=' + sanitizedQuery + optsString,
-    scheme: 'http',
+  https.get({
+    host: baseUrl,
+    path: '/feeds/api/videos?q=' + sanitizedQuery + optsString,
     headers: {
-      'GData-Version': '2',
-      'Access-Control-Allow-Credentials': 'false'
+      accept: '*/*'
     }
   }, function(res) {
     var responseString = '';
@@ -34,33 +32,28 @@ youtubeSearch.search = function(q, opts, cb) {
 
     res.on('end', function() {
       parseString(responseString, function(err, result) {
-        if(err) cb(err);
+        if(err || !result || !result.feed || !result.feed.entry)
+          return cb(err, []);
         
-        if(result.feed.entry) {
-          cb(null, result.feed.entry.map(function(entry) {
-            return {
-              title: entry.title[0]._,
-              url: entry.link[0].$.href,
-              category: entry.category[1].$.term,
-              description: entry.content[0]._,
-              duration: entry["media:group"][0]["yt:duration"][0].$.seconds,
-              author: entry.author[0].name[0],
-              thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
-                return size.$;
-              }),
-              statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
-              published: entry.published[0],
-              updated: entry.updated[0]
-            };
-          }));
-        } else {
-          cb('No results found'); 
-        }
+        cb(null, result.feed.entry.map(function(entry) {
+          return {
+            title: entry.title[0]._,
+            url: entry.link[0].$.href,
+            category: entry.category[1].$.term,
+            description: entry.content[0]._,
+            duration: entry["media:group"][0]["yt:duration"][0].$.seconds,
+            author: entry.author[0].name[0],
+            thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
+              return size.$;
+            }),
+            statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
+            published: entry.published[0],
+            updated: entry.updated[0]
+          };
+        }));
       });
     });
-  }).on('error', function(e) {
-    console.log(e);
-  });
+  }).on('error', cb);
 }
 
 module.exports = youtubeSearch;
