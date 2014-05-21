@@ -1,10 +1,10 @@
 var parseString = require('xml2js').parseString;
-var http = require('http');
+var https = require('https');
 
 var youtubeSearch = {}
 
 youtubeSearch.search = function(q, opts, cb) {
-  var baseUrl = 'https://gdata.youtube.com/feeds/api/videos?q=';
+  var baseUrl = 'gdata.youtube.com';
   var sanitizedQuery = q.replace(/ /g, '+');
   var optsString = '';
 
@@ -18,13 +18,11 @@ youtubeSearch.search = function(q, opts, cb) {
     }
   }
 
-  http.get({
-    host: 'www.corsproxy.com',
-    path: '/gdata.youtube.com/feeds/api/videos?q=' + sanitizedQuery + optsString,
-    scheme: 'http',
+  https.get({
+    host: baseUrl,
+    path: '/feeds/api/videos?q=' + sanitizedQuery + optsString,
     headers: {
-      'GData-Version': '2',
-      'Access-Control-Allow-Credentials': 'false'
+      accept: '*/*'
     }
   }, function(res) {
     var responseString = '';
