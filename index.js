@@ -2,28 +2,30 @@ var parseString = require('xml2js').parseString;
 var http = require('http');
 var querystring = require("querystring");
 
-var youtubeSearch = {}
-
-youtubeSearch.search = function(q, opts, cb) {
+youtubeSearch = function(useCorsProxy, q, opts, cb) {
   var sanitizedQuery = querystring.escape(q);
   var optsString = '';
 
   for(var attr in opts) {
     switch(attr) {
-      case 'maxResults': optsString += '&max-results=' + opts[attr];
-                         break;
-      case 'startIndex': optsString += '&start-index=' + opts[attr];
-                         break;
-      default: // don't do anything
+      case 'maxResults': optsString += '&max-results=' + opts[attr]; break;
+      case 'startIndex': optsString += '&start-index=' + opts[attr]; break;
     }
   }
 
+  var host = 'gdata.youtube.com';
+  var path = '/feeds/api/videos?q=';
+
+  if(useCorsProxy === true) {
+      path = '/' + host + path;
+      host = 'www.corsproxy.com';
+  }
+
   http.get({
-    host: 'www.corsproxy.com',
-    path: '/gdata.youtube.com/feeds/api/videos?q=' + sanitizedQuery + optsString,
+    host: host,
+    path: path + sanitizedQuery + optsString,
     scheme: 'http',
     headers: {
-      'GData-Version': '2',
       'Access-Control-Allow-Credentials': 'false'
     }
   }, function(res) {
@@ -34,7 +36,7 @@ youtubeSearch.search = function(q, opts, cb) {
 
     res.on('end', function() {
       parseString(responseString, function(err, result) {
-        if(err) cb(err);
+        if(err) return cb(err);
 
         if(result.feed.entry) {
           cb(null, result.feed.entry.map(function(entry) {
