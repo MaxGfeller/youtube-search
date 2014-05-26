@@ -1,11 +1,11 @@
 var parseString = require('xml2js').parseString;
 var http = require('http');
+var querystring = require("querystring");
 
 var youtubeSearch = {}
 
 youtubeSearch.search = function(q, opts, cb) {
-  var baseUrl = 'https://gdata.youtube.com/feeds/api/videos?q=';
-  var sanitizedQuery = q.replace(/ /g, '+');
+  var sanitizedQuery = querystring.escape(q);
   var optsString = '';
 
   for(var attr in opts) {
@@ -35,7 +35,7 @@ youtubeSearch.search = function(q, opts, cb) {
     res.on('end', function() {
       parseString(responseString, function(err, result) {
         if(err) cb(err);
-        
+
         if(result.feed.entry) {
           cb(null, result.feed.entry.map(function(entry) {
             return {
@@ -54,7 +54,7 @@ youtubeSearch.search = function(q, opts, cb) {
             };
           }));
         } else {
-          cb('No results found'); 
+          cb('No results found');
         }
       });
     });
