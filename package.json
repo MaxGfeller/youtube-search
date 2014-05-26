@@ -2,9 +2,10 @@
   "name": "youtube-search",
   "version": "0.0.9",
   "description": "Search for youtube videos",
-  "main": "index.js",
+  "main": "main.js",
+  "browser": "browser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap tests/test-*.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,8 @@
   "license": "BSD",
   "dependencies": {
     "xml2js": "~0.2.8"
+  },
+  "devDependencies": {
+    "tap": "^0.4.9"
   }
 }
