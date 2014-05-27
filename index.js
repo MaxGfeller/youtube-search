@@ -36,33 +36,27 @@ youtubeSearch = function(useCorsProxy, q, opts, cb) {
 
     res.on('end', function() {
       parseString(responseString, function(err, result) {
-        if(err) return cb(err);
+        var entries = result && result.feed && result.feed.entry || [];
 
-        if(result.feed.entry) {
-          cb(null, result.feed.entry.map(function(entry) {
-            return {
-              title: entry.title[0]._,
-              url: entry.link[0].$.href,
-              category: entry.category[1].$.term,
-              description: entry.content[0]._,
-              duration: entry["media:group"][0]["yt:duration"][0].$.seconds,
-              author: entry.author[0].name[0],
-              thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
-                return size.$;
-              }),
-              statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
-              published: entry.published[0],
-              updated: entry.updated[0]
-            };
-          }));
-        } else {
-          cb('No results found');
-        }
+        cb(err, entries.map(function(entry) {
+          return {
+            title: entry.title[0]._,
+            url: entry.link[0].$.href,
+            category: entry.category[1].$.term,
+            description: entry.content[0]._,
+            duration: entry["media:group"][0]["yt:duration"][0].$.seconds,
+            author: entry.author[0].name[0],
+            thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
+              return size.$;
+            }),
+            statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
+            published: entry.published[0],
+            updated: entry.updated[0]
+          };
+        }));
       });
     });
-  }).on('error', function(e) {
-    console.log(e);
-  });
+  }).on('error', cb);
 }
 
 module.exports = youtubeSearch;
