@@ -11,3 +11,12 @@ test('Make sure the search returns results', function(t) {
       t.end();
     });
 });
+
+test('Make sure errors get thrown', function(t) {
+    search('whatever', {
+        startIndex: 0
+    }, function(err, results) {
+        t.ok(err);
+        t.end();
+    });
+});
