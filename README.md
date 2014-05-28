@@ -1,5 +1,7 @@
 # youtube-search
 
+[![build status](https://secure.travis-ci.org/MaxGfeller/youtube-search.png)](http://travis-ci.org/MaxGfeller/youtube-search)
+
 youtube-search is an npm module to easily search videos on youtube.
 
 ## Usage
