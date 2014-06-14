@@ -1,9 +1,8 @@
 var parseString = require('xml2js').parseString;
 var http = require('http');
-var querystring = require("querystring");
 
 youtubeSearch = function(useCorsProxy, q, opts, cb) {
-  var sanitizedQuery = querystring.escape(q);
+  var sanitizedQuery = encodeURI(q);
   var optsString = '';
 
   for(var attr in opts) {
