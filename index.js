@@ -24,6 +24,7 @@ youtubeSearch = function(useCorsProxy, q, opts, cb) {
     host: host,
     path: path + sanitizedQuery + optsString,
     scheme: 'http',
+    withCredentials: false,
     headers: {
       'Access-Control-Allow-Credentials': 'false'
     }
