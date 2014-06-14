@@ -1,6 +1,6 @@
 {
   "name": "youtube-search",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Search for youtube videos",
   "main": "main.js",
   "browser": "browser.js",
