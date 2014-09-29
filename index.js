@@ -10,6 +10,7 @@ youtubeSearch = function(useCorsProxy, q, opts, cb) {
       case 'maxResults': optsString += '&max-results=' + opts[attr]; break;
       case 'startIndex': optsString += '&start-index=' + opts[attr]; break;
       case 'category': optsString += '&category=' + opts[attr]; break;
+      case 'channel': optsString += '&author=' + opts[attr]; break;
     }
   }
 
