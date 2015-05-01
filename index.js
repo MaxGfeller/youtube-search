@@ -37,6 +37,7 @@ youtubeSearch = function(useCorsProxy, q, opts, cb) {
     });
 
     res.on('end', function() {
+      responseString = responseString.replace("\ufeff", "");
       parseString(responseString, function(err, result) {
         var entries = result && result.feed && result.feed.entry || [];
 
