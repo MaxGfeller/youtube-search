@@ -23,3 +23,8 @@ search('deadmau5', opts, function(err, results) {
 
 You can pass a lot of optional parameters as the second parameter, they are
 documented [here](https://developers.google.com/youtube/v3/docs/search/list?hl=de).
+
+## Rate limiting
+
+Google enforces a rate limit on the Youtube Data API. You will probably need to
+register your application for a key and supply this key in the `opts`.
