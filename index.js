@@ -1,64 +1,88 @@
-var parseString = require('xml2js').parseString;
-var http = require('http');
+var querystring = require('querystring')
+var xhr = require('xhr')
 
-youtubeSearch = function(useCorsProxy, q, opts, cb) {
-  var sanitizedQuery = encodeURI(q);
-  var optsString = '';
+var allowedProperties = [
+  'fields',
+  'channelId',
+  'channelType',
+  'eventType',
+  'forContentOwner',
+  'forDeveloper',
+  'forMine',
+  'location',
+  'locationRadius',
+  'onBehalfOfContentOwner',
+  'order',
+  'pageToken',
+  'publishedAfter',
+  'publishedBefore',
+  'regionCode',
+  'relatedToVideoId',
+  'relevanceLanguage',
+  'safeSearch',
+  'topicId',
+  'type',
+  'videoCaption',
+  'videoCategoryId',
+  'videoDefinition',
+  'videoDimension',
+  'videoDuration',
+  'videoEmbeddable',
+  'videoLicense',
+  'videoSyndicated',
+  'videoType',
+  'key'
+]
 
-  for(var attr in opts) {
-    switch(attr) {
-      case 'maxResults': optsString += '&max-results=' + opts[attr]; break;
-      case 'startIndex': optsString += '&start-index=' + opts[attr]; break;
-      case 'category': optsString += '&category=' + opts[attr]; break;
-      case 'channel': optsString += '&author=' + opts[attr]; break;
-    }
+module.exports = function(term, opts, cb) {
+  if (typeof opts === 'function') cb = opts, opts = {}
+
+  var params = {
+    q: term,
+    part: opts.part || 'snippet',
+    maxResults: opts.maxResults || 30
   }
 
-  var host = 'gdata.youtube.com';
-  var path = '/feeds/api/videos?q=';
+  Object.keys(opts).map(function (k) {
+    if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
+  })
 
-  if(useCorsProxy === true) {
-      path = '/' + host + path;
-      host = 'www.corsproxy.com';
-  }
+  xhr({
+    url: 'https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params),
+    method: 'GET'
+  }, function (err, res, body) {
+    if (err) return cb(err)
 
-  http.get({
-    host: host,
-    path: path + sanitizedQuery + optsString,
-    scheme: 'http',
-    withCredentials: false,
-    headers: {
-      'Access-Control-Allow-Credentials': 'false'
+    try {
+      var result = JSON.parse(body)
+
+      if (result.error) {
+        var err = new Error(result.error.errors.shift().message)
+        return cb(err)
+      }
+
+      var pageInfo = {
+        totalResults: result.pageInfo.totalResults,
+        resultsPerPage: result.pageInfo.resultsPerPage
+      }
+
+      findings = result.items.map(function (item) {
+        return {
+          link: (item.id.kind === 'youtube#channel' ?
+            'https://www.youtube.com/channel/' + item.id.channelId :
+            'https://www.youtube.com/watch?v=' + item.id.videoId),
+          kind: item.id.kind,
+          publishedAt: item.snippet.publishedAt,
+          channelId: item.snippet.channelId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnails: item.snippet.thumbnails
+        }
+      })
+
+      return cb(null, findings, pageInfo)
+    } catch(e) {
+      return cb(e)
     }
-  }, function(res) {
-    var responseString = '';
-    res.on('data', function(data) {
-      responseString += data;
-    });
-
-    res.on('end', function() {
-      parseString(responseString, function(err, result) {
-        var entries = result && result.feed && result.feed.entry || [];
-
-        cb(err, entries.map(function(entry) {
-          return {
-            title: entry.title[0]._,
-            url: entry.link[0].$.href,
-            category: entry.category[1].$.term,
-            description: entry.content[0]._,
-            duration: entry["media:group"][0]["yt:duration"][0].$.seconds,
-            author: entry.author[0].name[0],
-            thumbnails: entry["media:group"][0]["media:thumbnail"].map(function (size) {
-              return size.$;
-            }),
-            statistics: entry["yt:statistics"] ? entry["yt:statistics"][0].$ : {},
-            published: entry.published[0],
-            updated: entry.updated[0]
-          };
-        }));
-      });
-    });
-  }).on('error', cb);
+  })
 }
-
-module.exports = youtubeSearch;
