@@ -2,10 +2,9 @@
   "name": "youtube-search",
   "version": "0.2.0",
   "description": "Search for youtube videos",
-  "main": "main.js",
-  "browser": "browser.js",
+  "main": "index.js",
   "scripts": {
-    "test": "tap tests/test-*.js"
+    "test": "browserify tests/test-*.js|tape-run"
   },
   "repository": {
     "type": "git",
@@ -19,9 +18,13 @@
   "author": "Max Gfeller <max.gfeller@gmail.com>",
   "license": "BSD",
   "dependencies": {
+    "xhr": "^2.0.1",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
-    "tap": "^0.4.9"
+    "browserify": "^10.2.1",
+    "standard": "^3.11.1",
+    "tape": "^4.0.0",
+    "tape-run": "^1.0.0"
   }
 }
