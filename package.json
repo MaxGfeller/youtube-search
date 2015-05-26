@@ -4,7 +4,7 @@
   "description": "Search for youtube videos",
   "main": "index.js",
   "scripts": {
-    "test": "browserify tests/test-*.js|tape-run"
+    "test": "standard && browserify tests/test-*.js|tape-run"
   },
   "repository": {
     "type": "git",
