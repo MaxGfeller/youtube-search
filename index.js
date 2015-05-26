@@ -34,8 +34,11 @@ var allowedProperties = [
   'key'
 ]
 
-module.exports = function(term, opts, cb) {
-  if (typeof opts === 'function') cb = opts, opts = {}
+module.exports = function (term, opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts
+    opts = {}
+  }
 
   var params = {
     q: term,
@@ -57,8 +60,8 @@ module.exports = function(term, opts, cb) {
       var result = JSON.parse(body)
 
       if (result.error) {
-        var err = new Error(result.error.errors.shift().message)
-        return cb(err)
+        var error = new Error(result.error.errors.shift().message)
+        return cb(error)
       }
 
       var pageInfo = {
@@ -66,7 +69,7 @@ module.exports = function(term, opts, cb) {
         resultsPerPage: result.pageInfo.resultsPerPage
       }
 
-      findings = result.items.map(function (item) {
+      var findings = result.items.map(function (item) {
         return {
           link: (item.id.kind === 'youtube#channel' ?
             'https://www.youtube.com/channel/' + item.id.channelId :
