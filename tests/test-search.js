@@ -1,22 +1,15 @@
-var search = require('../main.js');
-var test = require('tap').test;
+var search = require('../')
+var test = require('tape')
 
-test('Make sure the search returns results', function(t) {
-    search('deadmau5 ghosts n stuff', {
-      maxResults: 5
-    }, function(err, results) {
-      t.notOk(err);
-      t.ok(results);
-      t.equals(5, results.length);
-      t.end();
-    });
-});
+var key = 'AIzaSyD1J1tnUlAxa0WxO9-XY6AwsuoBc7Dso1w'
 
-test('Make sure errors get thrown', function(t) {
-    search('whatever', {
-        startIndex: 0
-    }, function(err, results) {
-        t.ok(err);
-        t.end();
-    });
-});
+test('basic', function (t) {
+  search('deadmau5', {
+    key: key
+  }, function (err, results) {
+    t.notOk(err, 'no error')
+    t.equals(results.length, 30, '30 results')
+    // results.map(function (r) { console.log(r.title + ': ' + r.link) })
+    t.end()
+  })
+})
