@@ -1,11 +1,11 @@
 var querystring = require('querystring')
-var xhr
+var xhr = require('xhr')
 
 // check if running in browser or as server
-try {
-  xhr = require('xhr')
+if (xhr.open) {
   xhr.open()
-} catch (e) {
+} else {
+  console.error('xhr is not available in server mode')
   xhr = require('request')
 }
 
