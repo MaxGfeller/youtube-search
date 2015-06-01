@@ -1,9 +1,9 @@
 var querystring = require('querystring')
-var xhr;
+var xhr
 
 // check if running in browser or as server
 try {
-  xhr =  require('xhr');
+  xhr = require('xhr')
   xhr.open()
 } catch (e) {
   xhr = require('request')
