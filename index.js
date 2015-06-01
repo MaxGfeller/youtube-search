@@ -1,5 +1,13 @@
 var querystring = require('querystring')
-var xhr = require('xhr')
+var xhr;
+
+// check if running in browser or as server
+try {
+  xhr =  require('xhr');
+  xhr.open()
+} catch (e) {
+  xhr = require('request')
+}
 
 var allowedProperties = [
   'fields',
