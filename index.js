@@ -1,13 +1,7 @@
 var querystring = require('querystring')
 var xhr = require('xhr')
 
-// check if running in browser or as server
-if (xhr.open) {
-  xhr.open()
-} else {
-  console.error('xhr is not available in server mode')
-  xhr = require('request')
-}
+if (!xhr.open) xhr = require('request')
 
 var allowedProperties = [
   'fields',
