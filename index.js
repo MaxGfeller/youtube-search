@@ -73,6 +73,7 @@ module.exports = function (term, opts, cb) {
 
       var findings = result.items.map(function (item) {
         return {
+          id: item.id.videoId,
           link: (item.id.kind === 'youtube#channel' ?
             'https://www.youtube.com/channel/' + item.id.channelId :
             'https://www.youtube.com/watch?v=' + item.id.videoId),
