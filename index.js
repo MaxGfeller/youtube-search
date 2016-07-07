@@ -72,9 +72,9 @@ module.exports = function (term, opts, cb) {
       }
 
       var findings = result.items.map(function (item) {
-        var link = "",
-            id = ""
-        switch(item.id.kind) {
+        var link = ''
+        var id = ''
+        switch (item.id.kind) {
           case 'youtube#channel':
             link = 'https://www.youtube.com/channel/' + item.id.channelId
             id = item.id.channelId
