@@ -72,11 +72,28 @@ module.exports = function (term, opts, cb) {
       }
 
       var findings = result.items.map(function (item) {
+        var link = "",
+            id = ""
+        switch(item.id.kind) {
+          case 'youtube#channel':
+            link = 'https://www.youtube.com/channel/' + item.id.channelId
+            id = item.id.channelId
+            break
+          case 'youtube#playlist':
+            link = 'https://www.youtube.com/playlist&list=' + item.id.playlistId
+            id = item.id.playlistId
+            break
+          default:
+            link = 'https://www.youtube.com/watch?v=' + item.id.videoId
+            id = item.id.videoId
+            break
+        }
+
+        //console.log(item);
+
         return {
-          id: item.id.videoId,
-          link: (item.id.kind === 'youtube#channel' ?
-            'https://www.youtube.com/channel/' + item.id.channelId :
-            'https://www.youtube.com/watch?v=' + item.id.videoId),
+          id: id,
+          link: link,
           kind: item.id.kind,
           publishedAt: item.snippet.publishedAt,
           channelId: item.snippet.channelId,
