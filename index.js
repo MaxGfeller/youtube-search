@@ -89,8 +89,6 @@ module.exports = function (term, opts, cb) {
             break
         }
 
-        //console.log(item);
-
         return {
           id: id,
           link: link,
