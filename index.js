@@ -68,7 +68,9 @@ module.exports = function (term, opts, cb) {
 
       var pageInfo = {
         totalResults: result.pageInfo.totalResults,
-        resultsPerPage: result.pageInfo.resultsPerPage
+        resultsPerPage: result.pageInfo.resultsPerPage,
+        nextPageToken: result.nextPageToken,
+        prevPageToken: result.prevPageToken
       }
 
       var findings = result.items.map(function (item) {
