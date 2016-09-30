@@ -97,6 +97,7 @@ module.exports = function (term, opts, cb) {
           kind: item.id.kind,
           publishedAt: item.snippet.publishedAt,
           channelId: item.snippet.channelId,
+		  channelTitle: item.snippet.channelTitle,
           title: item.snippet.title,
           description: item.snippet.description,
           thumbnails: item.snippet.thumbnails
