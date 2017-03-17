@@ -35,6 +35,20 @@ declare namespace search {
     key?: string;
   }
 
+  export interface YouTubeThumbnail {
+    url: string;
+    width: number;
+    height: number;
+  }
+
+  export interface YouTubeSearchResultThumbnails {
+    default?: YouTubeThumbnail;
+    medium?: YouTubeThumbnail;
+    high?: YouTubeThumbnail;
+    standard?: YouTubeThumbnail;
+    maxres?: YouTubeThumbnail;
+  }
+
   export interface YouTubeSearchResults {
     id: string;
     link: string;
@@ -43,7 +57,7 @@ declare namespace search {
     channelId: string;
     title: string;
     description: string;
-    thumbnails: string;
+    thumbnails: YouTubeSearchResultThumbnails;
   }
 
   export interface YouTubeSearchPageResults {
