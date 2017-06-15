@@ -1,6 +1,7 @@
 # youtube-search
 
 [![build status](https://secure.travis-ci.org/MaxGfeller/youtube-search.png)](http://travis-ci.org/MaxGfeller/youtube-search)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 Easily search for videos on Youtube using their v3 API.
 
