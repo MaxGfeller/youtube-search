@@ -82,7 +82,7 @@ module.exports = function (term, opts, cb) {
             id = item.id.channelId
             break
           case 'youtube#playlist':
-            link = 'https://www.youtube.com/playlist&list=' + item.id.playlistId
+            link = 'https://www.youtube.com/playlist?list=' + item.id.playlistId
             id = item.id.playlistId
             break
           default:
