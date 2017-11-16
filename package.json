@@ -23,7 +23,7 @@
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
-    "blue-tape": ^1.0.0",
+    "blue-tape": "^1.0.0",
     "browserify": "^10.2.1",
     "standard": "^4.3.3",
     "tape": "^4.0.0",
