@@ -42,12 +42,12 @@ module.exports = function search(term, opts, cb) {
     opts = {}
   }
   if (!cb) {
-    return new Promise((resolve, reject) => {
-      search(term, opts, (err, info) => {
-        if (err) return reject(err);
-        resolve(info);
-      });
-    });
+    return new Promise(function (resolve, reject) {
+      search(term, opts, function (err, info)  {
+        if (err) return reject(err)
+        resolve(info)
+      })
+    })
   }
 
   var params = {
