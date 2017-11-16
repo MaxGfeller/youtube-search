@@ -21,5 +21,5 @@ testblue('promise', function (t) {
   }).then(function (results) {
     t.equals(results.length, 30, '30 results')
     t.end()
-  });
+  })
 })
