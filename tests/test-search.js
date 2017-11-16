@@ -19,7 +19,7 @@ testblue('promise', function (t) {
   search('deadmau5', {
     key: key
   }).then(function (results) {
-    t.equals(results.length, 30 '30 results')
+    t.equals(results.length, 30, '30 results')
     t.end()
   });
 })
