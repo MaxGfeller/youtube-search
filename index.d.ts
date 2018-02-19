@@ -54,6 +54,7 @@ declare namespace search {
     link: string;
     kind: string;
     publishedAt: string;
+    channelTitle: string;
     channelId: string;
     title: string;
     description: string;
