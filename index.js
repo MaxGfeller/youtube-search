@@ -105,7 +105,7 @@ module.exports = function (term, opts, cb) {
       })
 
       return cb(null, findings, pageInfo)
-    } catch(e) {
+    } catch (e) {
       return cb(e)
     }
   })
