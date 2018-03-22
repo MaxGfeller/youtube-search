@@ -36,10 +36,19 @@ var allowedProperties = [
   'key'
 ]
 
-module.exports = function (term, opts, cb) {
+module.exports = function search (term, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
+  }
+
+  if (!cb) {
+    return new Promise(function (resolve, reject) {
+      search(term, opts, function (err, info) {
+        if (err) return reject(err)
+        resolve(info)
+      })
+    })
   }
 
   var params = {
