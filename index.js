@@ -42,6 +42,8 @@ module.exports = function search (term, opts, cb) {
     opts = {}
   }
 
+  if (!opts) opts = {}
+
   if (!cb) {
     return new Promise(function (resolve, reject) {
       search(term, opts, function (err, info) {
