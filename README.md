@@ -25,7 +25,7 @@ var opts = {
   key: 'yourkey'
 };
 
-search('deadmau5', opts, function(err, results) {
+search('jsconf', opts, function(err, results) {
   if(err) return console.log(err);
 
   console.dir(results);
@@ -34,7 +34,7 @@ search('deadmau5', opts, function(err, results) {
 
 ## TypeScript Usage
 
-A TypeScript definition file is included so that 'youtube-search' can be used 
+A TypeScript definition file is included so that 'youtube-search' can be used
 easily from TypeScript.
 
 ```typescript
@@ -45,7 +45,7 @@ var opts: youtubeSearch.YouTubeSearchOptions = {
   key: "yourkey"
 };
 
-youtubeSearch("deadmau5", opts, (err, results) => {
+youtubeSearch("jsconf", opts, (err, results) => {
   if(err) return console.log(err);
 
   console.dir(results);

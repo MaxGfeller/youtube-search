@@ -4,7 +4,7 @@ var test = require('tape')
 var key = 'AIzaSyD1J1tnUlAxa0WxO9-XY6AwsuoBc7Dso1w'
 
 test('basic', function (t) {
-  search('deadmau5', {
+  search('jsconf', {
     key: key
   }, function (err, results) {
     t.notOk(err, 'no error')
