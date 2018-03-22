@@ -72,7 +72,7 @@ declare namespace search {
 declare function search(
   term: string,
   opts: search.YouTubeSearchOptions,
-  cb: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
-): (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void;
+  cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
+): Promise<(result: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults)>;
 
 export = search;
