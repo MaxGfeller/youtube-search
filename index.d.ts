@@ -1,3 +1,4 @@
+import {YouTubeSearchPageResults, YouTubeSearchResults} from "./index";
 
 declare namespace search {
   export interface YouTubeSearchOptions {
@@ -73,6 +74,6 @@ declare function search(
   term: string,
   opts: search.YouTubeSearchOptions,
   cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
-): Promise<(result: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults)>;
+): Promise<{results: YouTubeSearchResults[], pageInfo: YouTubeSearchPageResults}>;
 
 export = search;
