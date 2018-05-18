@@ -16,8 +16,8 @@ test('basic', (t) => {
 test('promise', (t) => {
   var p = search('jsconf', { key: key })
   t.ok(p)
-  p.then((results) => {
-    t.equals(results.length, 30, '30 results')
+  p.then((result) => {
+    t.equals(result.results.length, 30, '30 results')
     t.end()
   })
 })

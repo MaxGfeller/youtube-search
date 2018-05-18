@@ -1,4 +1,3 @@
-
 declare namespace search {
   export interface YouTubeSearchOptions {
     fields?: string;
@@ -73,6 +72,6 @@ declare function search(
   term: string,
   opts: search.YouTubeSearchOptions,
   cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
-): Promise<(result: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults)>;
+): Promise<{results: search.YouTubeSearchResults[], pageInfo: search.YouTubeSearchPageResults}>;
 
 export = search;
