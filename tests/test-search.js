@@ -1,7 +1,7 @@
 var search = require('../')
 var test = require('tape')
 
-var key = 'AIzaSyD1J1tnUlAxa0WxO9-XY6AwsuoBc7Dso1w'
+var key = process.env.API_KEY
 
 test('basic', (t) => {
   search('jsconf', {
