@@ -1,7 +1,6 @@
 var querystring = require('querystring')
-var xhr = require('xhr')
-
-if (!xhr.open) xhr = require('request')
+var RestClient = require('./services/RestClient')
+const searchService = new RestClient()
 
 var allowedProperties = [
   'fields',
@@ -48,7 +47,7 @@ module.exports = function search (term, opts, cb) {
     return new Promise(function (resolve, reject) {
       search(term, opts, function (err, results, pageInfo) {
         if (err) return reject(err)
-        resolve({results: results, pageInfo: pageInfo})
+        resolve({ results: results, pageInfo: pageInfo })
       })
     })
   }
@@ -63,20 +62,13 @@ module.exports = function search (term, opts, cb) {
     if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
   })
 
-  xhr({
-    url: 'https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params),
-    method: 'GET'
-  }, function (err, res, body) {
-    if (err) return cb(err)
-
-    try {
-      var result = JSON.parse(body)
-
-      if (result.error) {
-        var error = new Error(result.error.errors.shift().message)
-        return cb(error)
-      }
-
+  searchService
+    .get(
+      `https://www.googleapis.com/youtube/v3/search?${querystring.stringify(
+        params
+      )}`
+    )
+    .then(result => {
       var pageInfo = {
         totalResults: result.pageInfo.totalResults,
         resultsPerPage: result.pageInfo.resultsPerPage,
@@ -93,7 +85,8 @@ module.exports = function search (term, opts, cb) {
             id = item.id.channelId
             break
           case 'youtube#playlist':
-            link = 'https://www.youtube.com/playlist?list=' + item.id.playlistId
+            link =
+              'https://www.youtube.com/playlist?list=' + item.id.playlistId
             id = item.id.playlistId
             break
           default:
@@ -116,8 +109,6 @@ module.exports = function search (term, opts, cb) {
       })
 
       return cb(null, findings, pageInfo)
-    } catch (e) {
-      return cb(e)
-    }
-  })
+    })
+    .catch(error => cb(error))
 }

@@ -4,7 +4,8 @@
   "description": "Search for youtube videos",
   "main": "index.js",
   "scripts": {
-    "test": "standard && node tests/test-*.js"
+    "test": "standard && node tests/test-*.js",
+    "lint-fix": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -19,10 +20,10 @@
   "license": "BSD",
   "dependencies": {
     "request": "^2.57.0",
-    "xhr": "^2.0.1",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
+    "axios": "^0.18.0",
     "browserify": "^16.1.1",
     "standard": "^11.0.1",
     "tape": "^4.9.0",
