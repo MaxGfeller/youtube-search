@@ -51,3 +51,11 @@ youtubeSearch("jsconf", opts, (err, results) => {
   console.dir(results);
 });
 ```
+
+## Tests
+
+To run the tests you need a [Youtube v3 API key](https://console.developers.google.com/apis/credentials):
+
+```bash
+API_KEY=<your-api-key> npm test
+```
