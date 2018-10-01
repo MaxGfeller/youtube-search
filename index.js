@@ -1,7 +1,5 @@
 var querystring = require('querystring')
-var xhr = require('xhr')
-
-if (!xhr.open) xhr = require('request')
+var axios = require('axios')
 
 var allowedProperties = [
   'fields',
@@ -63,19 +61,9 @@ module.exports = function search (term, opts, cb) {
     if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
   })
 
-  xhr({
-    url: 'https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params),
-    method: 'GET'
-  }, function (err, res, body) {
-    if (err) return cb(err)
-
-    try {
-      var result = JSON.parse(body)
-
-      if (result.error) {
-        var error = new Error(result.error.errors.shift().message)
-        return cb(error)
-      }
+  axios.get('https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params))
+    .then(function (response) {
+      var result = response.data
 
       var pageInfo = {
         totalResults: result.pageInfo.totalResults,
@@ -116,8 +104,8 @@ module.exports = function search (term, opts, cb) {
       })
 
       return cb(null, findings, pageInfo)
-    } catch (e) {
-      return cb(e)
-    }
-  })
+    })
+    .catch(function (err) {
+      return cb(err)
+    })
 }
