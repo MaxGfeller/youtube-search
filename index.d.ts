@@ -58,6 +58,7 @@ declare namespace search {
     title: string;
     description: string;
     thumbnails: YouTubeSearchResultThumbnails;
+    duration: string;
   }
 
   export interface YouTubeSearchPageResults {
