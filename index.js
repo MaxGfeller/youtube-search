@@ -1,6 +1,6 @@
 var querystring = require('querystring')
 var axios = require('axios')
-var duration = require('duration-iso-8601')
+var duration = require('duration-iso-8601').convertYouTubeDuration
 
 var allowedProperties = [
   'fields',
