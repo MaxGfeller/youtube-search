@@ -1,6 +1,6 @@
 var querystring = require('querystring')
 var axios = require('axios')
-var duration = require('duration-iso-8601');
+var duration = require('duration-iso-8601')
 
 var allowedProperties = [
   'fields',
@@ -62,7 +62,7 @@ module.exports = function search(term, opts, cb) {
     if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
   })
   if (!params.key)
-    return cb("No key");
+    return cb("No key")
   axios.get('https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params))
     .then(function (response) {
       var result = response.data
@@ -113,9 +113,10 @@ module.exports = function search(term, opts, cb) {
         .then(function (response) {
           process.stdout.write(JSON.stringify(response.data, null, 4));
           var findings2 = findings.map(function(item) {
-            item.duration = duration(item.contentDetails.duration);
-            return item;
-          });
+            var detailsItem = response.data.items.find(i => i.id === item.id)
+            item.duration = duration(detailsItem.contentDetails.duration)
+            return item
+          })
           return cb(null, findings2, pageInfo)
         })
         .catch(function (err) {
