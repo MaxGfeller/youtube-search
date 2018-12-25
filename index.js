@@ -111,7 +111,6 @@ module.exports = function search(term, opts, cb) {
         part: 'contentDetails'
       }))
         .then(function (response) {
-          process.stdout.write(JSON.stringify(response.data, null, 4));
           var findings2 = findings.map(function(item) {
             var detailsItem = response.data.items.find(i => i.id === item.id)
             item.duration = duration(detailsItem.contentDetails.duration)
