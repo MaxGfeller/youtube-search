@@ -1,4 +1,30 @@
+declare namespace metadata {
+  export interface MetadataStatistics {
+    viewCount: number;
+    likeCount?: number;
+    dislikeCount?: number;
+    favoriteCount: number;
+    commentCount: number;
+  }
+
+  export interface Metadata {
+    duration?: string;
+    statistics: MetadataStatistics;
+  }
+
+  export interface MetadataHelper {
+    includeDuration() : MetadataHelper;
+    includeStatistics() : MetadataHelper;
+    fetch(apiKey: string, videoIds: string[]) : Promise<{ [key:string]: Metadata }>
+  }
+}
+
 declare namespace search {
+  export interface YouTubeMetadataOptions {
+    duration?: boolean;
+    statistics?: boolean;
+  }
+
   export interface YouTubeSearchOptions {
     fields?: string;
     channelId?: string;
@@ -32,6 +58,7 @@ declare namespace search {
     videoSyndicated?: string;
     videoType?: string;
     key?: string;
+    metadata?: YouTubeMetadataOptions
   }
 
   export interface YouTubeThumbnail {
@@ -48,14 +75,6 @@ declare namespace search {
     maxres?: YouTubeThumbnail;
   }
 
-  export interface YouTubeSearchResultStatistics {
-    viewCount: number;
-    likeCount?: number;
-    dislikeCount?: number;
-    favoriteCount: number;
-    commentCount: number;
-  }
-
   export interface YouTubeSearchResults {
     id: string;
     link: string;
@@ -67,7 +86,7 @@ declare namespace search {
     description: string;
     thumbnails: YouTubeSearchResultThumbnails;
     duration?: string;
-    statistics?: YouTubeSearchResultStatistics;
+    statistics?: metadata.MetadataStatistics
   }
 
   export interface YouTubeSearchPageResults {
@@ -84,4 +103,8 @@ declare function search(
   cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
 ): Promise<{results: search.YouTubeSearchResults[], pageInfo: search.YouTubeSearchPageResults}>;
 
-export = search;
+
+export {
+  search,
+  metadata
+}

@@ -40,24 +40,26 @@ function MetadataHelper () {
   var helpers = {}
 
   return {
-    withDuration: function () {
-      if (metadataParts.indexOf('contentDetails') > -1) {
+    includeDuration: function () {
+      if (metadataParts.indexOf('contentDetails') === -1) {
         metadataParts.push('contentDetails')
       }
 
       helpers.duration = function (metadata) {
         return convertYoutubeDuration(metadata.contentDetails.duration)
       }
+
       return this
     },
-    withStatistics: function () {
-      if (metadataParts.indexOf('statistics') > -1) {
+    includeStatistics: function () {
+      if (metadataParts.indexOf('statistics') === -1) {
         metadataParts.push('statistics')
       }
 
       helpers.statistics = function (metadata) {
         return metadata.statistics
       }
+
       return this
     },
     fetch: function (apiKey, videoIds) {
@@ -66,23 +68,22 @@ function MetadataHelper () {
       }
 
       var parts = metadataParts.join(',')
-      var resolvers = Object.assign({}, helpers)
+      var helperFunctions = helpers
 
-      // resetting for the next use
       metadataParts = []
       helpers = {}
 
       return axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
         key: apiKey,
         id: (videoIds || []).join(','),
-        part: parts.join(',')
-      })).then((response) => {
-        var metadataMap = response.data.items.reduce(function (allDetails, objectDetails) {
+        part: parts
+      })).then(function (response) {
+        var metadata = response.data.items.reduce(function (allDetails, objectDetails) {
           // run objectDetails through each of the resolvers to get all the requested props
-          var metadata = Object.keys(resolvers).reduce(function (results, propertyName) {
-            var resolverFunction = resolvers[propertyName]
-            return Object.assign(results, {
-              [propertyName]: resolverFunction(objectDetails)
+          var metadata = Object.keys(helperFunctions).reduce(function (allMetadata, property) {
+            var helperFunction = helperFunctions[property]
+            return Object.assign(allMetadata, {
+              [property]: helperFunction(objectDetails)
             })
           }, {})
 
@@ -92,13 +93,11 @@ function MetadataHelper () {
           })
         }, {})
 
-        return metadataMap
+        return metadata
       })
     }
   }
 }
-
-var metadataHelper = new MetadataHelper()
 
 module.exports = function search (term, opts, cb) {
   if (typeof opts === 'function') {
@@ -107,6 +106,10 @@ module.exports = function search (term, opts, cb) {
   }
 
   if (!opts) opts = {}
+
+  if (!opts.metadata) {
+    Object.assign(opts, { metadata: {} })
+  }
 
   if (typeof cb !== 'function') {
     return new Promise(function (resolve, reject) {
@@ -173,12 +176,16 @@ module.exports = function search (term, opts, cb) {
         }
       })
 
-      if (opts.fetchDuration) {
-        metadataHelper.withDuration()
+      var metadataHelper = new MetadataHelper()
+
+      console.log('opts', opts)
+
+      if (opts.metadata.duration) {
+        metadataHelper.includeDuration()
       }
 
-      if (opts.fetchStatistics) {
-        metadataHelper.withStatistics()
+      if (opts.metadata.statistics) {
+        metadataHelper.includeStatistics()
       }
 
       metadataHelper.fetch(params.key, findings.map(f => f.id))
@@ -200,4 +207,6 @@ module.exports = function search (term, opts, cb) {
     })
 }
 
-module.exports.fetchMetadata = metadataHelper
+var metadataHelper = new MetadataHelper()
+
+module.exports.metadata = metadataHelper
