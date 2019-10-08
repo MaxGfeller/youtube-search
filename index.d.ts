@@ -48,6 +48,14 @@ declare namespace search {
     maxres?: YouTubeThumbnail;
   }
 
+  export interface YouTubeSearchResultStatistics {
+    viewCount: number;
+    likeCount?: number;
+    dislikeCount?: number;
+    favoriteCount: number;
+    commentCount: number;
+  }
+
   export interface YouTubeSearchResults {
     id: string;
     link: string;
@@ -58,7 +66,8 @@ declare namespace search {
     title: string;
     description: string;
     thumbnails: YouTubeSearchResultThumbnails;
-    duration: string;
+    duration?: string;
+    statistics?: YouTubeSearchResultStatistics;
   }
 
   export interface YouTubeSearchPageResults {
