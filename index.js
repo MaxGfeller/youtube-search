@@ -37,7 +37,11 @@ var allowedProperties = [
 
 function MetadataHelper () {
   var metadataParts = []
-  var helpers = {}
+  var extractors = {
+    id: function (metadata) {
+      return metadata.id
+    }
+  }
 
   return {
     includeDuration: function () {
@@ -45,7 +49,7 @@ function MetadataHelper () {
         metadataParts.push('contentDetails')
       }
 
-      helpers.duration = function (metadata) {
+      extractors.duration = function (metadata) {
         return convertYoutubeDuration(metadata.contentDetails.duration)
       }
 
@@ -56,44 +60,50 @@ function MetadataHelper () {
         metadataParts.push('statistics')
       }
 
-      helpers.statistics = function (metadata) {
+      extractors.statistics = function (metadata) {
         return metadata.statistics
       }
 
       return this
     },
-    fetch: function (apiKey, videoIds) {
+    fetch: function (apiKey, videoIds, cb) {
+      if (typeof cb !== 'function') {
+        return new Promise(function (resolve, reject) {
+          this.fetch(apiKey, videoIds, function (error, metadataMap) {
+            if (error) reject(error)
+            resolve(metadataMap)
+          })
+        })
+      }
+
       if (!apiKey || !videoIds.length || !metadataParts.length) {
-        return Promise.resolve({})
+        return cb(null, {})
       }
 
       var parts = metadataParts.join(',')
-      var helperFunctions = helpers
+      var extractorFunctions = extractors
 
       metadataParts = []
-      helpers = {}
+      extractors = {}
 
       return axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
         key: apiKey,
         id: (videoIds || []).join(','),
         part: parts
       })).then(function (response) {
-        var metadata = response.data.items.reduce(function (allDetails, objectDetails) {
+        var metadata = response.data.items.map(function (details) {
           // run objectDetails through each of the resolvers to get all the requested props
-          var metadata = Object.keys(helperFunctions).reduce(function (allMetadata, property) {
-            var helperFunction = helperFunctions[property]
+          return Object.keys(extractorFunctions).reduce(function (allMetadata, property) {
+            var extractPropertyValue = extractorFunctions[property]
             return Object.assign(allMetadata, {
-              [property]: helperFunction(objectDetails)
+              [property]: extractPropertyValue(details)
             })
           }, {})
+        })
 
-          // merge them together by video id, creating a map of them for easier management later
-          return Object.assign(allDetails, {
-            [objectDetails.id]: metadata
-          })
-        }, {})
-
-        return metadata
+        cb(null, metadata)
+      }).catch(function (error) {
+        cb(error)
       })
     }
   }
@@ -178,8 +188,6 @@ module.exports = function search (term, opts, cb) {
 
       var metadataHelper = new MetadataHelper()
 
-      console.log('opts', opts)
-
       if (opts.metadata.duration) {
         metadataHelper.includeDuration()
       }
@@ -189,9 +197,19 @@ module.exports = function search (term, opts, cb) {
       }
 
       metadataHelper.fetch(params.key, findings.map(f => f.id))
-        .then(function (resultsMap) {
+        .then(function (metadatas) {
+          // create a map of { id: metadata } to avoid traversing through the array on each loop iteration to find
+          // the correct video by id in the metadata array
+          var metadataMap = metadatas.reduce(function (allMetadata, metadata) {
+            var id = metadata.id
+            delete metadata.id
+            return Object.assign(allMetadata, {
+              [id]: metadata
+            })
+          }, {})
+
           var videosWithMetadata = findings.map(function (item) {
-            const metadata = resultsMap[item.id]
+            const metadata = metadataMap[item.id]
             return metadata
               ? Object.assign(item, metadata)
               : item

@@ -1,13 +1,14 @@
 declare namespace metadata {
   export interface MetadataStatistics {
-    viewCount: number;
-    likeCount?: number;
-    dislikeCount?: number;
-    favoriteCount: number;
-    commentCount: number;
+    viewCount: string;
+    likeCount?: string;
+    dislikeCount?: string;
+    favoriteCount: string; // this one's deprecated
+    commentCount: string;
   }
 
   export interface Metadata {
+    id: string,
     duration?: string;
     statistics: MetadataStatistics;
   }
@@ -15,7 +16,7 @@ declare namespace metadata {
   export interface MetadataHelper {
     includeDuration() : MetadataHelper;
     includeStatistics() : MetadataHelper;
-    fetch(apiKey: string, videoIds: string[]) : Promise<{ [key:string]: Metadata }>
+    fetch(apiKey: string, videoIds: string[]) : Promise<Metadata[]>
   }
 }
 
