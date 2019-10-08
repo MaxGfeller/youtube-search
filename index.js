@@ -1,6 +1,6 @@
 var querystring = require('querystring')
 var axios = require('axios')
-var duration = require('duration-iso-8601').convertYouTubeDuration
+var convertYoutubeDuration = require('duration-iso-8601').convertYouTubeDuration
 
 var allowedProperties = [
   'fields',
@@ -35,7 +35,7 @@ var allowedProperties = [
   'key'
 ]
 
-module.exports = function search(term, opts, cb) {
+module.exports = function search (term, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -43,7 +43,7 @@ module.exports = function search(term, opts, cb) {
 
   if (!opts) opts = {}
 
-  if (!cb) {
+  if (typeof cb !== 'function') {
     return new Promise(function (resolve, reject) {
       search(term, opts, function (err, results, pageInfo) {
         if (err) return reject(err)
@@ -61,8 +61,11 @@ module.exports = function search(term, opts, cb) {
   Object.keys(opts).map(function (k) {
     if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
   })
-  if (!params.key)
-    return cb("No key")
+
+  if (!params.key) {
+    return cb(new Error('No key'))
+  }
+
   axios.get('https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params))
     .then(function (response) {
       var result = response.data
@@ -108,20 +111,29 @@ module.exports = function search(term, opts, cb) {
       axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
         key: params.key,
         id: findings.map(f => f.id).join(','),
-        part: 'contentDetails'
+        part: 'contentDetails, statistics'
       }))
         .then(function (response) {
-          var findings2 = findings.map(function(item) {
-            var detailsItem = response.data.items.find(i => i.id === item.id)
-            item.duration = duration(detailsItem.contentDetails.duration)
-            return item
+          const resultsMap = response.data.items.reduce(function (allDetails, details) {
+            return Object.assign(allDetails, {
+              [details.id]: {
+                duration: convertYoutubeDuration(details.contentDetails.duration),
+                statistics: details.statistics
+              }
+            })
+          }, {})
+
+          var videosWithMetadata = findings.map(function (item) {
+            const metadata = resultsMap[item.id]
+            return metadata
+              ? Object.assign(item, metadata)
+              : item
           })
-          return cb(null, findings2, pageInfo)
+          return cb(null, videosWithMetadata, pageInfo)
         })
         .catch(function (err) {
           return cb(err)
         })
-
     })
     .catch(function (err) {
       return cb(err)

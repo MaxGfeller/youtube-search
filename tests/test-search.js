@@ -10,6 +10,7 @@ test('basic', (t) => {
     t.notOk(err, 'no error')
     t.equals(results.length, 30, '30 results')
     t.end()
+    console.log('results', results)
   })
 })
 
