@@ -35,6 +35,71 @@ var allowedProperties = [
   'key'
 ]
 
+function MetadataHelper () {
+  var metadataParts = []
+  var helpers = {}
+
+  return {
+    withDuration: function () {
+      if (metadataParts.indexOf('contentDetails') > -1) {
+        metadataParts.push('contentDetails')
+      }
+
+      helpers.duration = function (metadata) {
+        return convertYoutubeDuration(metadata.contentDetails.duration)
+      }
+      return this
+    },
+    withStatistics: function () {
+      if (metadataParts.indexOf('statistics') > -1) {
+        metadataParts.push('statistics')
+      }
+
+      helpers.statistics = function (metadata) {
+        return metadata.statistics
+      }
+      return this
+    },
+    fetch: function (apiKey, videoIds) {
+      if (!apiKey || !videoIds.length || !metadataParts.length) {
+        return Promise.resolve({})
+      }
+
+      var parts = metadataParts.join(',')
+      var resolvers = Object.assign({}, helpers)
+
+      // resetting for the next use
+      metadataParts = []
+      helpers = {}
+
+      return axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
+        key: apiKey,
+        id: (videoIds || []).join(','),
+        part: parts.join(',')
+      })).then((response) => {
+        var metadataMap = response.data.items.reduce(function (allDetails, objectDetails) {
+          // run objectDetails through each of the resolvers to get all the requested props
+          var metadata = Object.keys(resolvers).reduce(function (results, propertyName) {
+            var resolverFunction = resolvers[propertyName]
+            return Object.assign(results, {
+              [propertyName]: resolverFunction(objectDetails)
+            })
+          }, {})
+
+          // merge them together by video id, creating a map of them for easier management later
+          return Object.assign(allDetails, {
+            [objectDetails.id]: metadata
+          })
+        }, {})
+
+        return metadataMap
+      })
+    }
+  }
+}
+
+var metadataHelper = new MetadataHelper()
+
 module.exports = function search (term, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
@@ -108,21 +173,16 @@ module.exports = function search (term, opts, cb) {
         }
       })
 
-      axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
-        key: params.key,
-        id: findings.map(f => f.id).join(','),
-        part: 'contentDetails, statistics'
-      }))
-        .then(function (response) {
-          const resultsMap = response.data.items.reduce(function (allDetails, details) {
-            return Object.assign(allDetails, {
-              [details.id]: {
-                duration: convertYoutubeDuration(details.contentDetails.duration),
-                statistics: details.statistics
-              }
-            })
-          }, {})
+      if (opts.fetchDuration) {
+        metadataHelper.withDuration()
+      }
 
+      if (opts.fetchStatistics) {
+        metadataHelper.withStatistics()
+      }
+
+      metadataHelper.fetch(params.key, findings.map(f => f.id))
+        .then(function (resultsMap) {
           var videosWithMetadata = findings.map(function (item) {
             const metadata = resultsMap[item.id]
             return metadata
@@ -139,3 +199,5 @@ module.exports = function search (term, opts, cb) {
       return cb(err)
     })
 }
+
+module.exports.fetchMetadata = metadataHelper
