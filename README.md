@@ -22,7 +22,7 @@ var search = require('youtube-search');
 
 var opts = {
   maxResults: 10,
-  key: 'yourkey'
+  key: 'yourkey',
 };
 
 search('jsconf', opts, function(err, results) {
@@ -30,6 +30,40 @@ search('jsconf', opts, function(err, results) {
 
   console.dir(results);
 });
+```
+
+You can also get some video metadata, like its `duration` or `statistics`, if you include the following properties in the opts:
+
+```js
+var opts = {
+  key: 'yourkey',
+  metadata: {
+    duration: true,
+    statistics: true
+  }
+};
+```
+
+or by fetching them manually for specific videos through a builder-like structure
+
+```js
+const search = require('youtube-search');
+
+const videoIds = await search('jsconf', opts)
+
+const metadata = search.metadata
+  .includeDuration()
+  .includeStatistics()
+  .fetch(key, videoIds)
+  .then((metadatas) => {
+    metadatas.forEach(({ id, duration, statistics }) => {
+      console.log(
+        `Fetched metadata for id ${id}`,
+        `duration: ${duration}`,
+        `statistics ${JSON.stringify(statistics, null, 2)}`
+      );
+    })
+  })
 ```
 
 ## TypeScript Usage
@@ -40,7 +74,7 @@ easily from TypeScript.
 ```typescript
 import * as youtubeSearch from "youtube-search";
 
-var opts: youtubeSearch.YouTubeSearchOptions = {
+var opts: youtubeSearch.search.YouTubeSearchOptions = {
   maxResults: 10,
   key: "yourkey"
 };
