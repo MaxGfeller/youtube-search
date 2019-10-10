@@ -77,12 +77,12 @@ test('metadata basic manually', (t) => {
     search.metadata
       .includeDuration()
       .includeStatistics()
-      .fetch(key, ids, function (error, metadataMap) {
+      .fetch(key, ids, function (error, metadataArray) {
         t.notOk(error, 'no error')
-        Object.entries(metadataMap).forEach(([key, value]) => {
-          t.ok(ids.includes(key))
-          t.ok(value.duration)
-          t.ok(value.statistics)
+        metadataArray.forEach((metadata) => {
+          t.ok(ids.includes(metadata.id))
+          t.ok(metadata.duration)
+          t.ok(metadata.statistics)
         })
         t.end()
       })
@@ -97,12 +97,9 @@ test('metadata promise manually', (t) => {
     search.metadata
       .includeDuration()
       .includeStatistics()
-      .fetch(key, ids).then((metadatas) => {
-        metadatas.forEach((metadata) => {
-          t.ok(ids.includes(metadata.id))
-          t.ok(metadata.duration)
-          t.ok(metadata.statistics)
-        })
+      .fetch(key, ids).then((metadataArray) => {
+        const wrongMetadata = metadataArray.find(metadata => !metadata.id || !metadata.duration || !metadata.statistics)
+        t.notOk(wrongMetadata)
         t.end()
       })
   })

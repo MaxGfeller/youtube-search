@@ -43,6 +43,15 @@ function MetadataHelper () {
     }
   }
 
+  var reset = function () {
+    metadataParts = []
+    extractors = {
+      id: function (metadata) {
+        return metadata.id
+      }
+    }
+  }
+
   return {
     includeDuration: function () {
       if (metadataParts.indexOf('contentDetails') === -1) {
@@ -67,26 +76,26 @@ function MetadataHelper () {
       return this
     },
     fetch: function (apiKey, videoIds, cb) {
+      var self = this
       if (typeof cb !== 'function') {
         return new Promise(function (resolve, reject) {
-          this.fetch(apiKey, videoIds, function (error, metadataMap) {
+          self.fetch(apiKey, videoIds, function (error, metadata) {
             if (error) reject(error)
-            resolve(metadataMap)
+            resolve(metadata)
           })
         })
       }
 
       if (!apiKey || !videoIds.length || !metadataParts.length) {
-        return cb(null, {})
+        return cb(null, [])
       }
 
       var parts = metadataParts.join(',')
       var extractorFunctions = extractors
 
-      metadataParts = []
-      extractors = {}
+      reset()
 
-      return axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
+      axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
         key: apiKey,
         id: (videoIds || []).join(','),
         part: parts
