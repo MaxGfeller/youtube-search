@@ -1,5 +1,6 @@
 var querystring = require('querystring')
 var axios = require('axios')
+var convertYoutubeDuration = require('duration-iso-8601').convertYouTubeDuration
 
 var allowedProperties = [
   'fields',
@@ -34,6 +35,89 @@ var allowedProperties = [
   'key'
 ]
 
+function MetadataHelper () {
+  var metadataParts = []
+  var extractors = {
+    id: function (metadata) {
+      return metadata.id
+    }
+  }
+
+  var reset = function () {
+    metadataParts = []
+    extractors = {
+      id: function (metadata) {
+        return metadata.id
+      }
+    }
+  }
+
+  return {
+    includeDuration: function () {
+      if (metadataParts.indexOf('contentDetails') === -1) {
+        metadataParts.push('contentDetails')
+      }
+
+      extractors.duration = function (metadata) {
+        return convertYoutubeDuration(metadata.contentDetails.duration)
+      }
+
+      return this
+    },
+    includeStatistics: function () {
+      if (metadataParts.indexOf('statistics') === -1) {
+        metadataParts.push('statistics')
+      }
+
+      extractors.statistics = function (metadata) {
+        return metadata.statistics
+      }
+
+      return this
+    },
+    fetch: function (apiKey, videoIds, cb) {
+      var self = this
+      if (typeof cb !== 'function') {
+        return new Promise(function (resolve, reject) {
+          self.fetch(apiKey, videoIds, function (error, metadata) {
+            if (error) reject(error)
+            resolve(metadata)
+          })
+        })
+      }
+
+      if (!apiKey || !videoIds.length || !metadataParts.length) {
+        return cb(null, [])
+      }
+
+      var parts = metadataParts.join(',')
+      var extractorFunctions = extractors
+
+      reset()
+
+      axios.get('https://www.googleapis.com/youtube/v3/videos?' + querystring.stringify({
+        key: apiKey,
+        id: (videoIds || []).join(','),
+        part: parts
+      })).then(function (response) {
+        var metadata = response.data.items.map(function (details) {
+          // run objectDetails through each of the resolvers to get all the requested props
+          return Object.keys(extractorFunctions).reduce(function (allMetadata, property) {
+            var extractPropertyValue = extractorFunctions[property]
+            return Object.assign(allMetadata, {
+              [property]: extractPropertyValue(details)
+            })
+          }, {})
+        })
+
+        cb(null, metadata)
+      }).catch(function (error) {
+        cb(error)
+      })
+    }
+  }
+}
+
 module.exports = function search (term, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
@@ -42,11 +126,15 @@ module.exports = function search (term, opts, cb) {
 
   if (!opts) opts = {}
 
-  if (!cb) {
+  if (!opts.metadata) {
+    Object.assign(opts, { metadata: {} })
+  }
+
+  if (typeof cb !== 'function') {
     return new Promise(function (resolve, reject) {
       search(term, opts, function (err, results, pageInfo) {
         if (err) return reject(err)
-        resolve({results: results, pageInfo: pageInfo})
+        resolve({ results: results, pageInfo: pageInfo })
       })
     })
   }
@@ -60,6 +148,10 @@ module.exports = function search (term, opts, cb) {
   Object.keys(opts).map(function (k) {
     if (allowedProperties.indexOf(k) > -1) params[k] = opts[k]
   })
+
+  if (!params.key) {
+    return cb(new Error('No key'))
+  }
 
   axios.get('https://www.googleapis.com/youtube/v3/search?' + querystring.stringify(params))
     .then(function (response) {
@@ -103,9 +195,45 @@ module.exports = function search (term, opts, cb) {
         }
       })
 
-      return cb(null, findings, pageInfo)
+      var metadataHelper = new MetadataHelper()
+
+      if (opts.metadata.duration) {
+        metadataHelper.includeDuration()
+      }
+
+      if (opts.metadata.statistics) {
+        metadataHelper.includeStatistics()
+      }
+
+      metadataHelper.fetch(params.key, findings.map(f => f.id))
+        .then(function (metadatas) {
+          // create a map of { id: metadata } to avoid traversing through the array on each loop iteration to find
+          // the correct video by id in the metadata array
+          var metadataMap = metadatas.reduce(function (allMetadata, metadata) {
+            var id = metadata.id
+            delete metadata.id
+            return Object.assign(allMetadata, {
+              [id]: metadata
+            })
+          }, {})
+
+          var videosWithMetadata = findings.map(function (item) {
+            const metadata = metadataMap[item.id]
+            return metadata
+              ? Object.assign(item, metadata)
+              : item
+          })
+          return cb(null, videosWithMetadata, pageInfo)
+        })
+        .catch(function (err) {
+          return cb(err)
+        })
     })
     .catch(function (err) {
       return cb(err)
     })
 }
+
+var metadataHelper = new MetadataHelper()
+
+module.exports.metadata = metadataHelper

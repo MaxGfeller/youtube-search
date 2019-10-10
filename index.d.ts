@@ -1,4 +1,31 @@
+declare namespace metadata {
+  export interface MetadataStatistics {
+    viewCount: string;
+    likeCount?: string;
+    dislikeCount?: string;
+    favoriteCount: string; // this one's deprecated
+    commentCount: string;
+  }
+
+  export interface Metadata {
+    id: string,
+    duration?: string;
+    statistics: MetadataStatistics;
+  }
+
+  export interface MetadataHelper {
+    includeDuration() : MetadataHelper;
+    includeStatistics() : MetadataHelper;
+    fetch(apiKey: string, videoIds: string[]) : Promise<Metadata[]>
+  }
+}
+
 declare namespace search {
+  export interface YouTubeMetadataOptions {
+    duration?: boolean;
+    statistics?: boolean;
+  }
+
   export interface YouTubeSearchOptions {
     fields?: string;
     channelId?: string;
@@ -32,6 +59,7 @@ declare namespace search {
     videoSyndicated?: string;
     videoType?: string;
     key?: string;
+    metadata?: YouTubeMetadataOptions
   }
 
   export interface YouTubeThumbnail {
@@ -58,6 +86,8 @@ declare namespace search {
     title: string;
     description: string;
     thumbnails: YouTubeSearchResultThumbnails;
+    duration?: string;
+    statistics?: metadata.MetadataStatistics
   }
 
   export interface YouTubeSearchPageResults {
@@ -74,4 +104,8 @@ declare function search(
   cb?: (err: Error, result?: search.YouTubeSearchResults[], pageInfo?: search.YouTubeSearchPageResults) => void
 ): Promise<{results: search.YouTubeSearchResults[], pageInfo: search.YouTubeSearchPageResults}>;
 
-export = search;
+
+export {
+  search,
+  metadata
+}

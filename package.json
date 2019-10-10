@@ -19,6 +19,7 @@
   "license": "BSD",
   "dependencies": {
     "axios": "^0.18.0",
+    "duration-iso-8601": "^1.1.0",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
