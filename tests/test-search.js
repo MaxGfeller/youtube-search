@@ -104,3 +104,13 @@ test('metadata promise manually', (t) => {
       })
   })
 })
+
+
+test('multiple words', (t) => {
+  var p = search('best videos', { key: key })
+  t.ok(p)
+  p.then((result) => {
+    t.equals(result.results.length, 30, '30 results')
+    t.end()
+  })
+})
