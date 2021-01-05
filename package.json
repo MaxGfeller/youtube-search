@@ -18,7 +18,7 @@
   "author": "Max Gfeller <max.gfeller@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
