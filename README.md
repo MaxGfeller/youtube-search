@@ -10,6 +10,16 @@ Easily search for videos on Youtube using their v3 API.
 You can pass a lot of optional parameters as the second parameter, they are
 documented [here](https://developers.google.com/youtube/v3/docs/search/list).
 
+If you want to use [youtube/v3/docs/videos/list](https://developers.google.com/youtube/v3/docs/videos/list) instead of [youtube/v3/docs/search/list](https://developers.google.com/youtube/v3/docs/search/list) the optional parameter "locationType" should be used.
+```javascript
+var opts = {
+  maxResults: 10,
+  key: 'yourkey',
+  locationType: "videos"
+};
+```
+
+
 ## Rate limiting
 
 Google enforces a rate limit on the Youtube Data API. You will probably need to
